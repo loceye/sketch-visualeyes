@@ -17,16 +17,86 @@ function getApiKey() {
   }
 }
 
+function drawAOI(rectangles, parent) {
+  rectangles.map((rect, index) => {
+    const { frame, color, score } = rect;
+    const { Style, Text, Group, Rectangle, ShapePath } = sketch;
+
+    const fillColor = color.slice(0, -2) + "20";
+
+    const backgroundShape = new ShapePath({
+      name: `Background`,
+      frame: frame,
+      style: {
+        fills: [
+          {
+            color: fillColor,
+            fillType: Style.FillType.Color
+          }
+        ],
+        borders: [
+          {
+            color,
+            thickness: 4,
+            position: Style.BorderPosition.Center
+          }
+        ]
+      }
+    });
+
+    const scoreRectangle = new Rectangle(frame.x, frame.y, 70, 32);
+
+    const scoreText = new Text({
+      text: `${score}%`,
+      frame: scoreRectangle,
+      style: {
+        alignment: Text.VerticalAlignment.center,
+        fontSize: 18,
+        fontWeight: 9,
+        fills: [
+          {
+            color: "#ffffff",
+            fillType: Style.FillType.Color
+          }
+        ]
+      }
+    });
+
+    const scoreShape = new ShapePath({
+      name: `Score Background`,
+      frame: scoreRectangle,
+      style: {
+        fills: [
+          {
+            color: color,
+            fillType: Style.FillType.Color
+          }
+        ],
+        borders: []
+      }
+    });
+
+    const group = new Group({
+      name: `AOI Group ${index}`,
+      layers: [backgroundShape, scoreShape, scoreText],
+      parent: parent
+    });
+    group.adjustToFit();
+    group.locked = true;
+  });
+}
+
 export default function() {
   const document = sketch.getSelectedDocument();
   if (!document) {
     return;
   }
+
   const selection = document.selectedLayers;
 
   // Detect if the selection is an artboard or not
   if (selection.lenght === 0) {
-    UI.message("You did not select anything 😳");
+    UI.message("You didn't select anything 😳");
   } else {
     // Get the Highest Level Selection
     // Should be an artboard
@@ -35,6 +105,67 @@ export default function() {
     if (artboardLayer.type !== "Artboard") {
       UI.message("Please select an Αrtboard 🤓");
     } else {
+      const rectangles = artboardLayer.layers
+        .filter(layer => {
+          const isRectangle =
+            layer.type === "ShapePath" &&
+            layer.shapeType === "Rectangle" &&
+            layer.name === "AOI";
+
+          if (isRectangle) {
+            const { x, y, width, height } = layer.frame;
+            const maxWidth = artboardLayer.frame.width;
+            const maxHeight = artboardLayer.frame.height;
+
+            const isInsideArtboard =
+              x >= 0 &&
+              y >= 0 &&
+              x + width <= maxWidth &&
+              y + height <= maxHeight;
+
+            const isSmall = width < 70 || height < 32;
+
+            if (isSmall) {
+              UI.message(
+                " 👎 One of your rectangles was not big enough (minimum 70x32 pixels)"
+              );
+              layer.hidden = true;
+              layer.name = "🚨 Too small (minimum 70x32)";
+            } else if (!isInsideArtboard) {
+              UI.message(
+                " 😱 One of your rectangles is outside the current Artboard."
+              );
+              layer.hidden = true;
+              layer.name = "🚨 Off the current Artboard";
+            }
+
+            return isInsideArtboard && !isSmall;
+          } else {
+            return false;
+          }
+        })
+        .map((rect, index) => {
+          // Extract dominant color
+          const BRANDING_COLOR = "#3E21DEff";
+          const fills = rect.style.fills;
+          const hasFills = fills.length > 0;
+          const color = hasFills ? rect.style.fills[0].color : BRANDING_COLOR;
+          const frame = rect.frame;
+
+          // Temporary remove the rect in order to extract the plain image
+          rect.remove();
+
+          return {
+            id: rect.id,
+            color,
+            frame
+          };
+        });
+      const hasAOI = rectangles.length > 0;
+
+      if (!hasAOI)
+        UI.message('You must create at least one rectangel named"AOI" 🧐');
+
       getApiKey().then(apiKey => {
         if (!apiKey) {
           sketch.UI.message("Please enter your VisualEyes API key first");
@@ -65,10 +196,31 @@ export default function() {
         // // Remove the image from the temp folder
         NSFileManager.defaultManager().removeItemAtURL_error(url, nil);
 
+        // Now I have the Artboard as a base64 file and I can send it to our API
         const formData = new FormData();
         formData.append("isTransparent", "true");
         formData.append("platform", "sketch");
         formData.append("image", "data:image/png;base64," + base64 + "");
+        if (hasAOI) {
+          const aoi = rectangles.map(rect => {
+            const { frame, id } = rect;
+            return {
+              id,
+              points: [
+                { x: frame.x, y: frame.y, index: 0 },
+                { x: frame.x + frame.width, y: frame.y, index: 1 },
+                {
+                  x: frame.x + frame.width,
+                  y: frame.y + frame.height,
+                  index: 2
+                },
+                { x: frame.x, y: frame.y + frame.height, index: 3 }
+              ]
+            };
+          });
+
+          formData.append("aoi", JSON.stringify(aoi));
+        }
 
         const apiURL = "https://api.visualeyes.design/predict/";
 
@@ -106,18 +258,21 @@ export default function() {
             return res.json();
           })
           .then(json => {
+            console.log(json);
+
             // console.log(json);
             if (json.code !== "success") {
               throw new Error("Error during fetching the heatmap");
             }
+            const areas = json.aoi;
             const imgURL = json.url;
 
             const nsURL = NSURL.alloc().initWithString(imgURL);
             const nsimage = NSImage.alloc().initByReferencingURL(nsURL);
 
-            return nsimage;
+            return { nsimage, areas };
           })
-          .then(nsimage => {
+          .then(({ nsimage, areas }) => {
             const x = 0;
             const y = 0;
             const { width, height } = artboardLayer.frame;
@@ -141,6 +296,14 @@ export default function() {
               },
               parent: artboardLayer
             });
+            shape.locked = true;
+
+            if (hasAOI) {
+              rectangles.forEach(rect => {
+                rect.score = areas.find(area => area.id === rect.id).score;
+              });
+              drawAOI(rectangles, artboardLayer);
+            }
 
             UI.message(`🎉 Bazinga!`);
           })

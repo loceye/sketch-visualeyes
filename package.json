@@ -2,6 +2,7 @@
   "name": "visualeyes",
   "description": "🔥 Generate attention heatmaps for your designs with one click",
   "version": "2.0.8",
+  "homepage": "https://www.visualeyes.design",
   "repository": {
     "type": "git",
     "url": "https://github.com/loceye/sketch-visualeyes.git"

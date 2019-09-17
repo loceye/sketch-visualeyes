@@ -2,22 +2,28 @@
   "compatibleVersion": 3,
   "bundleVersion": 1,
   "icon": "icon.png",
-  "homepage": "https://github.com/loceye/sketch-visualeyes.git",
+  "homepage": "https://www.visualeyes.design",
   "commands": [
     {
-      "name": "Generate Heatmap",
+      "name": "🔥 Generate Heatmap",
       "identifier": "visualeyes.generate",
       "script": "./generate.js",
       "shortcut": "cmd shift m"
     },
     {
-      "name": "Set your API key",
+      "name": "🚧 Find Areas of Interest",
+      "identifier": "visualeyes.aoi",
+      "script": "./aoi.js",
+      "shortcut": "ctrl shift a"
+    },
+    {
+      "name": "🔑 Set your API key",
       "identifier": "visualeyes.set-api-key",
       "script": "./set-api-key.js"
     }
   ],
   "menu": {
     "title": "🔥 Visualeyes",
-    "items": ["visualeyes.generate", "visualeyes.set-api-key"]
+    "items": ["visualeyes.generate", "visualeyes.aoi", "visualeyes.set-api-key"]
   }
 }

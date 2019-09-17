@@ -5,10 +5,10 @@ export default function() {
     const apiKey = sketch.Settings.settingForKey("api-key");
     let description = "";
     if (apiKey) {
-      description = `Change your API key on our website https://visualeyes.loceye.io.\n\nYou current API key is: ${apiKey}`;
-    }
-    else {
-      description = 'Find your API key on our website https://visualeyes.loceye.io.'
+      description = `Change your API key on our website https://www.visualeyes.design.\n\nYou current API key is: ${apiKey}`;
+    } else {
+      description =
+        "Find your API key on our website https://www.visualeyes.design.";
     }
     sketch.UI.getInputFromUser(
       "Visualeyes API Key",
