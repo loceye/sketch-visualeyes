@@ -219,6 +219,8 @@ export default function() {
             };
           });
 
+          console.log(aoi);
+
           formData.append("aoi", JSON.stringify(aoi));
         }
 

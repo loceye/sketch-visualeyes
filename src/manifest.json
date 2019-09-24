@@ -5,16 +5,10 @@
   "homepage": "https://www.visualeyes.design",
   "commands": [
     {
-      "name": "🔥 Generate Heatmap",
+      "name": "🔥 Run plugin",
       "identifier": "visualeyes.generate",
       "script": "./generate.js",
       "shortcut": "cmd shift m"
-    },
-    {
-      "name": "🚧 Find Areas of Interest",
-      "identifier": "visualeyes.aoi",
-      "script": "./aoi.js",
-      "shortcut": "ctrl shift a"
     },
     {
       "name": "🔑 Set your API key",
@@ -23,7 +17,7 @@
     }
   ],
   "menu": {
-    "title": "🔥 Visualeyes",
-    "items": ["visualeyes.generate", "visualeyes.aoi", "visualeyes.set-api-key"]
+    "title": "🔥 VisualEyes",
+    "items": ["visualeyes.generate", "visualeyes.set-api-key"]
   }
 }
