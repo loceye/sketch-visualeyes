@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "global": "^4.4.0",
+    "interjection-js": "^1.0.5",
     "sketch-polyfill-fetch": "^0.4.5",
     "skpm": "^1.2.1"
   }
