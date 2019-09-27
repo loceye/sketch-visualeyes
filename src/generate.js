@@ -1,37 +1,13 @@
 import sketch, { UI } from "sketch";
 import setApiKey from "./set-api-key";
 import generateInterjection from "interjection-js";
-
-const MIN_AOI_WIDTH = 70;
-const MIN_AOI_HEIGHT = 32;
-const USEFUL_TIPS = [
-  "Create Areas of Interest by drawing a Rectangle named AOI inside your Artboard...",
-  "The attention is higher on the red areas...",
-  "Clarity scoring based on custom demogrpahics would be available soon...",
-  "A/B testing small UI tweaks is a common use case of VisualEyes..."
-];
-
-const getDemoSVG = (url, width, height) => `
-<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <image xlink:href="${url}" width="${width}" height="${height}"/>
-  <g>
-    <rect x="10" y="10" width="200" height="200" style="fill: rgba(38,166,154,0.3); stroke-width:4; stroke: rgba(38,166,154,1)" />
-    <rect x="10" y="10" width="70" height="32" style="fill: rgba(38,166,154,1);" />
-    <text x="20" y="32" style="text-align: center; font-family: sans-serif; font-weight: bold; font-size: 18px; fill: white">100%</text>
-  </g>
-  <g>
-    <rect x="50" y="50" width="200" height="200" style="fill: rgba(239,83,80,0.3); stroke-width:4; stroke: rgba(239,83,80,1)" />
-    <rect x="50" y="50" width="70" height="32" style="fill: rgba(239,83,80,1);" />
-    <text x="60" y="72" style="text-align: center; font-family: sans-serif; font-weight: bold; font-size: 18px; fill: white">100%</text>
-  </g>
-</svg>
-`;
-
-function getRandomTip() {
-  return (
-    "🧠 TIP: " + USEFUL_TIPS[Math.floor(Math.random() * USEFUL_TIPS.length)]
-  );
-}
+import {
+  MESSAGES,
+  API_URL,
+  getRandomTip,
+  MIN_AOI_HEIGHT,
+  MIN_AOI_WIDTH
+} from "./constants";
 
 function getApiKey() {
   // Check if user's api Key is stored
@@ -52,11 +28,7 @@ function getApiKey() {
 }
 
 function onBoardingAlert() {
-  sketch.UI.alert(
-    "Welcome on board",
-    `🔥 How to generate your Attention Heatmap:\n\t1. Select an Artboard \n\t2. Run the plugin command\n\n📦 How to create Areas of Interest:\n\t1. Create a Rectangle named AOI\n\t2. Select the Artboard\n\t3. Run the plugin command\n\n🔗 Learn more about the usage of our plugin here: https://www.visualeyes.design/learn`,
-    "Let's start"
-  );
+  sketch.UI.alert("Welcome on board", MESSAGES.onBoarding, "Let's start");
   sketch.Settings.setSettingForKey("first-time", false);
 }
 
@@ -159,10 +131,15 @@ function sendImage(url, body, apiKey, artboard) {
 
       const svg = json.svg;
       const { width, height } = artboard.frame;
-      // const svg = getDemoSVG(json.url, width, height);
       drawSVGToArtboard(svg, artboard);
 
-      UI.message(`🎉 ${generateInterjection()}! Your heatmap is ready!`);
+      const hasUsedAOI =
+        sketch.Settings.settingForKey("has-used-aoi") === "true";
+      if (hasUsedAOI) {
+        UI.message(MESSAGES.success);
+      } else {
+        UI.message(MESSAGES.successWithAOIPrompt);
+      }
     })
     .catch(err => {
       console.log(JSON.stringify(err));
@@ -175,11 +152,12 @@ function drawSVGToArtboard(svg, artboard) {
   const svgLayer = createLayerFromSvg(svg, width, height);
   const layers = svgLayer.ungroup();
 
-  new sketch.Group({
+  const group = new sketch.Group({
     name: `🔥 VisualEyes Layer`,
     layers,
     parent: artboard
   });
+  group.adjustToFit();
 }
 
 function getAOIRectangles(artboard) {
@@ -201,17 +179,13 @@ function getAOIRectangles(artboard) {
         const isSmall = width < MIN_AOI_WIDTH || height < MIN_AOI_HEIGHT;
 
         if (isSmall) {
-          UI.message(
-            `👎 One of your rectangles was not big enough (minimum ${MIN_AOI_WIDTH}x${MIN_AOI_HEIGHT} pixels)`
-          );
+          UI.message(AOI_ERRORS.size.message);
           layer.hidden = true;
-          layer.name = `🚨 Too small (minimum ${MIN_AOI_WIDTH}x${MIN_AOI_HEIGHT})`;
+          layer.name = AOI_ERRORS.size.layerName;
         } else if (!isInsideArtboard) {
-          UI.message(
-            "😱 One of your rectangles is outside the current Artboard."
-          );
+          UI.message(AOI_ERRORS.placement.message);
           layer.hidden = true;
-          layer.name = "🚨 Off the current Artboard";
+          layer.name = AOI_ERRORS.placement.layerName;
         }
 
         layer.hidden = true;
@@ -257,6 +231,11 @@ export default function() {
   }
 
   getApiKey().then(apiKey => {
+    if (!apiKey) {
+      sketch.UI.message(MESSAGES.noAPIKey);
+      return;
+    }
+
     const hasOnboarding = sketch.Settings.settingForKey("first-time");
     if (hasOnboarding) {
       onBoardingAlert();
@@ -266,40 +245,43 @@ export default function() {
 
     // Detect if the selection is an artboard or not
     if (selection.lenght === 0) {
-      UI.message("You did not select anything 😳");
+      UI.message(MESSAGES.noSelection);
     } else {
       // Get the Highest Level Selection. It should be an artboard.
       const artboardLayer = selection.layers[0];
 
       if (artboardLayer.type !== "Artboard") {
-        UI.message("Please select an Αrtboard 🤓");
+        UI.message(MESSAGES.noSelection);
       } else {
-        if (!apiKey) {
-          sketch.UI.message("Please enter your VisualEyes API key first");
-          return;
-        }
         UI.message(getRandomTip());
 
         const rectangles = getAOIRectangles(artboardLayer);
         const hasAOI = rectangles.length > 0;
+
+        const hasUsedAOI =
+          sketch.Settings.settingForKey("has-used-aoi") === "true";
+
+        if (!hasUsedAOI && hasAOI) {
+          console.log(
+            "This cool guy has just used our AOI feature. Let's not spam him anymore!"
+          );
+          sketch.Settings.setSettingForKey("has-used-aoi", "true");
+        }
 
         const base64 = artboardToBase64(artboardLayer);
 
         const formData = new FormData();
         formData.append("isTransparent", "true");
         formData.append("platform", "sketch");
+        formData.append("svg", "true");
         formData.append("image", "data:image/png;base64," + base64 + "");
 
         if (hasAOI) {
           const aoi = getAOI(rectangles);
           formData.append("aoi", aoi);
-          console.log(aoi);
         }
 
-        const apiURL = "https://api.visualeyes.design/predict/";
-        const testingURL = "http://192.168.10.99:8000/predict/";
-
-        sendImage(testingURL, formData, apiKey, artboardLayer);
+        sendImage(API_URL, formData, apiKey, artboardLayer);
       }
     }
   });
