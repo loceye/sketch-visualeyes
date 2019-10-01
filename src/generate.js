@@ -127,7 +127,7 @@ function sendImage(url, body, apiKey, artboard) {
       } finally {
       }
 
-      console.log(json);
+      // console.log(json);
 
       const svg = json.svg;
       const { width, height } = artboard.frame;
@@ -262,9 +262,9 @@ export default function() {
           sketch.Settings.settingForKey("has-used-aoi") === "true";
 
         if (!hasUsedAOI && hasAOI) {
-          console.log(
-            "This cool guy has just used our AOI feature. Let's not spam him anymore!"
-          );
+          // console.log(
+          //   "This cool guy has just used our AOI feature. Let's not spam him anymore!"
+          // );
           sketch.Settings.setSettingForKey("has-used-aoi", "true");
         }
 

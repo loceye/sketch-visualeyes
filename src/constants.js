@@ -3,6 +3,7 @@ import generateInterjection from "interjection-js";
 export const MIN_AOI_WIDTH = 10;
 export const MIN_AOI_HEIGHT = 10;
 export const API_URL = "https://api.visualeyes.design/predict/";
+// export const API_URL = "http://192.168.1.4:8000/predict/";
 
 function selectRandomFromArray(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -17,14 +18,14 @@ export function getRandomTip() {
 }
 
 const SUCCESS_EMOJIS = ["🙌", "🚀", "🎉", "👌", "🥰", "🥳"];
-const THINK_EMOJIS = ["🧠", "🤔", "💡"];
+const THINK_EMOJIS = ["🧠", "🤔", "💡", "🤓"];
 
 function randomEmoji() {
   return selectRandomFromArray(SUCCESS_EMOJIS);
 }
 
 export const USEFUL_TIPS = [
-  "The AOI Rectange should be placed at the top Frame...",
+  "The AOI Rectange should be placed at the top Artboard...",
   "Create Areas of Interest by drawing a Rectangle named AOI inside your Artboard...",
   "The attention is higher on the red areas...",
   "Clarity scoring based on custom demogrpahics would be available soon...",
