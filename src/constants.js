@@ -2,6 +2,7 @@ import generateInterjection from "interjection-js";
 
 export const MIN_AOI_WIDTH = 10;
 export const MIN_AOI_HEIGHT = 10;
+export const LARGE_IMAGE_TIMEOUT = 6000;
 export const API_URL = "https://api.visualeyes.design/predict/";
 // export const API_URL = "http://192.168.1.4:8000/predict/";
 
@@ -82,5 +83,7 @@ export const MESSAGES = {
   success: randomEmoji() + ` ${generateInterjection()}! Your heatmap is ready!`,
   successWithAOIPrompt: `🦸‍ You can impress even more your client with Areas of Interest...`,
   onBoardingEnd: "🚢 Re-run the plugin to see the magic!",
-  onBoarding: `🔥 How to generate your Attention Heatmap:\n\t1. Select an Artboard \n\t2. Run the plugin command\n\n📦 How to create Areas of Interest:\n\t1. Create a Rectangle named AOI\n\t2. Select the Artboard\n\t3. Run the plugin command\n\n🔗 Learn more about the usage of our plugin here: https://www.visualeyes.design/learn`
+  onBoarding: `🔥 How to generate your Attention Heatmap:\n\t1. Select an Artboard \n\t2. Run the plugin command\n\n📦 How to create Areas of Interest:\n\t1. Create a Rectangle named AOI\n\t2. Select the Artboard\n\t3. Run the plugin command\n\n🔗 Learn more about the usage of our plugin here: https://www.visualeyes.design/learn`,
+  largeImage:
+    "🏃‍♂️ Your image was pretty large. The prediction could take a little longer than usual."
 };

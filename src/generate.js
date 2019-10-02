@@ -1,13 +1,16 @@
 import sketch, { UI } from "sketch";
 import setApiKey from "./set-api-key";
-import generateInterjection from "interjection-js";
 import {
   MESSAGES,
   API_URL,
   getRandomTip,
   MIN_AOI_HEIGHT,
-  MIN_AOI_WIDTH
+  MIN_AOI_WIDTH,
+  LARGE_IMAGE_TIMEOUT,
+  AOI_ERRORS
 } from "./constants";
+
+let timeoutID = "";
 
 function getApiKey() {
   // Check if user's api Key is stored
@@ -127,8 +130,7 @@ function sendImage(url, body, apiKey, artboard) {
       } finally {
       }
 
-      // console.log(json);
-
+      clearTimeout(timeoutID);
       const svg = json.svg;
       const { width, height } = artboard.frame;
       drawSVGToArtboard(svg, artboard);
@@ -254,6 +256,10 @@ export default function() {
         UI.message(MESSAGES.noSelection);
       } else {
         UI.message(getRandomTip());
+        timeoutID = setTimeout(
+          () => UI.message(MESSAGES.largeImage),
+          LARGE_IMAGE_TIMEOUT
+        );
 
         const rectangles = getAOIRectangles(artboardLayer);
         const hasAOI = rectangles.length > 0;
