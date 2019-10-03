@@ -168,7 +168,7 @@ function getAOIRectangles(artboard) {
       const isRectangle =
         layer.type === "ShapePath" &&
         layer.shapeType === "Rectangle" &&
-        layer.name === "AOI";
+        layer.name.trim() === "AOI";
 
       if (isRectangle) {
         const { x, y, width, height } = layer.frame;
