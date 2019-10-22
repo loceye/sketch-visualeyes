@@ -14,10 +14,20 @@
       "name": "🔑 Set your API key",
       "identifier": "visualeyes.set-api-key",
       "script": "./set-api-key.js"
+    },
+    {
+      "name": "⚙️ How many credits do I have left?",
+      "identifier": "visualeyes.learn-credits",
+      "script": "./learn-credits.js"
     }
   ],
   "menu": {
     "title": "🔥 VisualEyes",
-    "items": ["visualeyes.generate", "visualeyes.set-api-key"]
+    "items": [
+      "visualeyes.generate",
+      "visualeyes.set-api-key",
+      "-",
+      "visualeyes.learn-credits"
+    ]
   }
 }

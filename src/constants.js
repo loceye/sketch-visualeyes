@@ -4,6 +4,7 @@ export const MIN_AOI_WIDTH = 10;
 export const MIN_AOI_HEIGHT = 10;
 export const LARGE_IMAGE_TIMEOUT = 6000;
 export const API_URL = "https://api.visualeyes.design/predict/";
+export const CREDITS_API_URL = "https://api.visualeyes.design/credits";
 // export const API_URL = "http://192.168.1.4:8000/predict/";
 
 function selectRandomFromArray(arr) {

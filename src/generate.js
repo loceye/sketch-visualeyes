@@ -255,39 +255,46 @@ export default function() {
       if (artboardLayer.type !== "Artboard") {
         UI.message(MESSAGES.noSelection);
       } else {
-        UI.message(getRandomTip());
-        timeoutID = setTimeout(
-          () => UI.message(MESSAGES.largeImage),
-          LARGE_IMAGE_TIMEOUT
-        );
+        // UI.message(getRandomTip());
+        // timeoutID = setTimeout(
+        //   () => UI.message(MESSAGES.largeImage),
+        //   LARGE_IMAGE_TIMEOUT
+        // );
 
-        const rectangles = getAOIRectangles(artboardLayer);
-        const hasAOI = rectangles.length > 0;
+        selection.layers.map((layer, index) => {
+          const artboardLayer = layer;
 
-        const hasUsedAOI =
-          sketch.Settings.settingForKey("has-used-aoi") === "true";
+          const rectangles = getAOIRectangles(artboardLayer);
+          const hasAOI = rectangles.length > 0;
 
-        if (!hasUsedAOI && hasAOI) {
-          // console.log(
-          //   "This cool guy has just used our AOI feature. Let's not spam him anymore!"
-          // );
-          sketch.Settings.setSettingForKey("has-used-aoi", "true");
-        }
+          const hasUsedAOI =
+            sketch.Settings.settingForKey("has-used-aoi") === "true";
 
-        const base64 = artboardToBase64(artboardLayer);
+          if (!hasUsedAOI && hasAOI) {
+            // console.log(
+            //   "This cool guy has just used our AOI feature. Let's not spam him anymore!"
+            // );
+            sketch.Settings.setSettingForKey("has-used-aoi", "true");
+          }
 
-        const formData = new FormData();
-        formData.append("isTransparent", "true");
-        formData.append("platform", "sketch");
-        formData.append("svg", "true");
-        formData.append("image", "data:image/png;base64," + base64 + "");
+          const base64 = artboardToBase64(artboardLayer);
 
-        if (hasAOI) {
-          const aoi = getAOI(rectangles);
-          formData.append("aoi", aoi);
-        }
+          const formData = new FormData();
+          formData.append("isTransparent", "true");
+          formData.append("platform", "sketch");
+          formData.append("svg", "true");
+          formData.append("image", "data:image/png;base64," + base64 + "");
 
-        sendImage(API_URL, formData, apiKey, artboardLayer);
+          if (hasAOI) {
+            const aoi = getAOI(rectangles);
+            formData.append("aoi", aoi);
+          }
+
+          setTimeout(
+            () => sendImage(API_URL, formData, apiKey, artboardLayer),
+            index * 3000
+          );
+        });
       }
     }
   });
