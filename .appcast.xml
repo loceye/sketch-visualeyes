@@ -2,10 +2,13 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
   <channel>
     <item>
-      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.3/visualeyes.sketchplugin.zip" sparkle:version="2.1.1"/>
+      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.4/visualeyes.sketchplugin.zip" sparkle:version="2.1.4"/>
     </item>
     <item>
-      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.2/visualeyes.sketchplugin.zip" sparkle:version="2.1.1"/>
+      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.3/visualeyes.sketchplugin.zip" sparkle:version="2.1.3"/>
+    </item>
+    <item>
+      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.2/visualeyes.sketchplugin.zip" sparkle:version="2.1.2"/>
     </item>
     <item>
       <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.1/visualeyes.sketchplugin.zip" sparkle:version="2.1.1"/>
