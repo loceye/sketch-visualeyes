@@ -2,6 +2,12 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
   <channel>
     <item>
+      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.14/visualeyes.sketchplugin.zip" sparkle:version="2.1.14"/>
+    </item>
+    <item>
+      <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.13/visualeyes.sketchplugin.zip" sparkle:version="2.1.13"/>
+    </item>
+    <item>
       <enclosure url="https://github.com/loceye/sketch-visualeyes/releases/download/v2.1.12/visualeyes.sketchplugin.zip" sparkle:version="2.1.12"/>
     </item>
     <item>
